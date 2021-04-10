@@ -1,4 +1,5 @@
 service: notes-api
+useDotenv: true
 
 # Create an optimized package for our functions
 package:
@@ -17,6 +18,7 @@ provider:
   lambdaHashingVersion: 20201221
   environment:
     tableName: notes
+    stripeSecretKey: ${env:STRIPE_SECRET_KEY}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -84,4 +86,15 @@ functions:
       - http:
           path: notes/{id}
           method: delete
+          authorizer: aws_iam
+
+  billing:
+    # Defines an HTTP API endpoint that calls the main function in billing.js
+    # - path: url path is /billing
+    # - method: POST request
+    handler: billing.main
+    events:
+      - http:
+          path: billing
+          method: post
           authorizer: aws_iam
